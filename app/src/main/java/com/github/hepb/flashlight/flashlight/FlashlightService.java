@@ -7,12 +7,15 @@ import android.hardware.Camera;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class FlashlightService extends IntentService {
     private static final String TAG = "FlashlightService";
     public static final String EXTRA_IS_DONE = "isDone";
 
     private Camera cam;
-    private volatile boolean isDone;
+    //private volatile boolean isDone;
+    private AtomicBoolean isDone = new AtomicBoolean();
 
     public FlashlightService() {
         super("Flashlight service started.");
@@ -20,15 +23,15 @@ public class FlashlightService extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        isDone = intent != null && intent.getBooleanExtra(EXTRA_IS_DONE, true);
+        isDone.set(intent != null && intent.getBooleanExtra(EXTRA_IS_DONE, true));
         synchronized (this) {
-            if (isDone) {
+            if (isDone.get()) {
                 flashLightOff();
             } else {
                 flashLightOn();
             }
         }
-        while (!isDone);
+        while (!isDone.get());
     }
 
     public void flashLightOn() {
@@ -40,10 +43,12 @@ public class FlashlightService extends IntentService {
                 p.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
                 cam.setParameters(p);
                 cam.startPreview();
+            } else {
+                isDone.set(true);
             }
         } catch (Exception e) {
             Log.e(TAG, "Еrror: ", e);
-            isDone = true;
+            isDone.set(true);
         }
     }
 
@@ -57,7 +62,7 @@ public class FlashlightService extends IntentService {
         } catch (Exception e) {
             Log.e(TAG, "Еrror: ", e);
         } finally {
-            isDone = true;
+            isDone.set(true);
         }
     }
 

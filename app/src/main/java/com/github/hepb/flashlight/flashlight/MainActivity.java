@@ -11,8 +11,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.widget.Toast;
+
+import timber.log.Timber;
 
 public class MainActivity extends Activity {
     private static final String TAG = "MainActivity";
@@ -25,7 +26,7 @@ public class MainActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (!hasCameraPermission()) {
-            Log.i(TAG, "On request permissions");
+            Timber.i("On request permissions");
             ActivityCompat.requestPermissions(this, CAMERA_PERMISSIONS, REQUEST_CAMERA_PERMISSIONS);
         } else {
             switchFlashLight();
@@ -35,7 +36,7 @@ public class MainActivity extends Activity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        Log.i(TAG, Integer.toString(requestCode));
+        Timber.i(Integer.toString(requestCode));
         switch (requestCode) {
             case REQUEST_CAMERA_PERMISSIONS:
                 if (hasCameraPermission()) {
@@ -67,10 +68,10 @@ public class MainActivity extends Activity {
         Intent intent = new Intent(this, FlashlightService.class);
         intent.putExtra(FlashlightService.EXTRA_IS_DONE, isFlashlightServiceStarted);
         if (isFlashlightServiceStarted) {
-            Log.i(TAG, "Stopping service");
+            Timber.i("Stopping service");
             stopService(intent);
         } else {
-            Log.i(TAG, "Starting service");
+            Timber.i("Starting service");
             startService(intent);
         }
     }

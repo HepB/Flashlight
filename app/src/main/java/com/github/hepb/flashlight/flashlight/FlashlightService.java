@@ -5,16 +5,16 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import timber.log.Timber;
+
 public class FlashlightService extends IntentService {
-    private static final String TAG = "FlashlightService";
     public static final String EXTRA_IS_DONE = "isDone";
 
     private Camera cam;
-    //private volatile boolean isDone;
+
     private AtomicBoolean isDone = new AtomicBoolean();
 
     public FlashlightService() {
@@ -35,7 +35,7 @@ public class FlashlightService extends IntentService {
     }
 
     public void flashLightOn() {
-        Log.i(TAG, "Flashlight switch on");
+        Timber.i("Flashlight switch on");
         try {
             if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
                 cam = Camera.open();
@@ -47,20 +47,20 @@ public class FlashlightService extends IntentService {
                 isDone.set(true);
             }
         } catch (Exception e) {
-            Log.e(TAG, "Еrror: ", e);
+            Timber.e(e, "Еrror: ");
             isDone.set(true);
         }
     }
 
     public void flashLightOff() {
-        Log.i(TAG, "Flashlight switch off");
+        Timber.i("Flashlight switch off");
         try {
             if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
                 cam.stopPreview();
                 cam.release();
             }
         } catch (Exception e) {
-            Log.e(TAG, "Еrror: ", e);
+            Timber.e(e, "Еrror: ");
         } finally {
             isDone.set(true);
         }
